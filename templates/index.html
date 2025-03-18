@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris VS IA</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="../static/ai.js" defer></script>
+    <script src="../static/script.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>TETRIS VS IA</h1>
+        <p>Affrontez l'intelligence artificielle dans ce duel de Tetris</p>
+    </header>
+    <main>
+        <div class="game-container">
+            <div class="top-section">
+                <div class="grid-container">
+                    <section class="grid human-grid">
+                        <h2>Votre Grille</h2>
+                        <div class="grid-display" id="humanGrid" aria-label="Votre Grille"></div>
+                    </section>
+                    <section class="grid ai-grid">
+                        <h2>Grille de l'IA</h2>
+                        <div class="grid-display" id="aiGrid" aria-label="Grille de l'IA"></div>
+                    </section>
+                </div>
+                <div class="info-panel">
+                    <aside class="scoreboard" role="complementary">
+                        <h2>Scores</h2>
+                        <div id="scoreDisplay">
+                            <p>Vous: <span id="humanScore">0</span></p>
+                            <p>IA: <span id="aiScore">0</span></p>
+                        </div>
+                    </aside>
+                    <div class="next-piece">
+                        <h3>Prochaine pièce</h3>
+                        <div class="next-piece-display" id="nextPieceDisplay"></div>
+                    </div>
+                    <div class="difficulty-selector">
+                        <h3>Difficulté IA</h3>
+                        <div class="difficulty-buttons">
+                            <button onclick="changeDifficulty('easy')" class="diff-btn">Facile</button>
+                            <button onclick="changeDifficulty('medium')" class="diff-btn active">Moyen</button>
+                            <button onclick="changeDifficulty('hard')" class="diff-btn">Difficile</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-section">
+                <div class="controls-info">
+                    <h3>Commandes</h3>
+                    <p>← → : Déplacement | ↑ : Rotation | ↓ : Descente | Espace : Chute rapide</p>
+                    <h3>Règles spéciales</h3>
+                    <p>
+                        • 2 lignes complétées = cadeau pour l'adversaire
+                        • 1000 points = ralentissement 20% (10 secondes)
+                        • 3000 points = pièce en forme de cœur (100 pts bonus)
+                        • Toutes les 2 minutes = mode arc-en-ciel (20 secondes)
+                    </p>
+                </div>
+                <div class="game-buttons">
+                    <button id="restartBtn" onclick="initGame()">Nouvelle partie</button>
+                    <button id="pauseBtn" onclick="togglePause()">Pause</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Tetris VS IA | Tous droits réservés</p>
+    </footer>
+</body>
+</html>

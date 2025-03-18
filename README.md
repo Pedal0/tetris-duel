@@ -1,97 +1,108 @@
-# Tetris Duel
+```markdown
+# Multiplayer Tetris
 
 ## Project Overview
-Tetris Duel is a two-player Tetris game that pits a human player against an AI. The human player controls Tetris pieces using keyboard arrow keys, while the AI automatically places pieces according to its logic. The game features a real-time scoreboard that tracks the scores of both players, along with various special events and effects that enhance the gameplay experience.
+Multiplayer Tetris is an engaging multiplayer game that pits a human player against an AI opponent in a side-by-side grid layout. The application is designed to provide a fun and competitive environment, featuring real-time scoring and unique game rules. The human player can control their pieces using keyboard inputs, while the AI automatically places its pieces based on simple algorithms. The game also includes special mechanics such as surprise gifts, funny pieces, and rainbow effects to enhance gameplay.
 
 ## Features
-- Display two separate grids for the human and AI players.
-- Human player controls Tetris pieces using keyboard arrow keys.
-- AI logic for automatic piece placement.
-- Real-time scoreboard displaying scores for both players.
-- Scoring rules for line completions and bonuses.
-- Introduce surprise gifts for completing 2 lines.
-- Gentle pause implemented for every 1,000 points scored.
-- Funny pieces introduced every 3,000 points.
-- Rainbow effect activated every 2 minutes.
+- Two separate grids displayed side by side for human and AI players.
+- Keyboard controls for human player to move and rotate Tetris pieces.
+- Simple AI logic for automatic piece placement.
+- Real-time scoreboard showing scores for both players.
+- Scoring mechanism for completing lines with bonus points for multiple lines.
+- Special game rules including:
+  - Surprise gifts that provide bonuses.
+  - Gentle pauses to allow players to catch up.
+  - Funny pieces that add humor to gameplay.
+  - Rainbow effects for visual enhancement.
 
 ## Prerequisites
-- Python >= 3.6
-- Tkinter (included with standard Python installations)
+- **Python**: Version 3.8 or higher
+- **Flask**: Version 2.0 or higher
+- **HTML/CSS/JavaScript**: Basic knowledge required for understanding frontend logic
+- **Browser**: Any modern web browser (Chrome, Firefox, etc.)
 
 ## Installation
-1. Clone the repository:
+1. **Clone the repository**:
    ```bash
-   $ git clone https://github.com/yourusername/tetris_duel.git
-   $ cd tetris_duel
+   $ git clone https://github.com/yourusername/multiplayer-tetris.git
+   $ cd multiplayer-tetris
    ```
-2. (Optional) Create a virtual environment:
+
+2. **Set up a virtual environment** (optional but recommended):
    ```bash
-   $ python -m venv venv
+   $ python3 -m venv venv
    $ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
-3. Install dependencies:
+
+3. **Install dependencies**:
    ```bash
-   $ pip install -r requirements.txt
+   (venv) $ pip install -r requirements.txt
    ```
+
+4. **Create a `.env` file** to store environment variables:
+   ```bash
+   $ touch .env
+   ```
+   Add any necessary environment variables as needed.
 
 ## Configuration
-Edit the `config.py` file located in the `tetris_duel/config` directory to customize game settings, such as initial scores or game duration.
+- **Environment Variables**: Configuration settings can be managed using a `.env` file in the project root. This may include variables for game settings, such as difficulty level or AI behavior.
 
 ## Deployment
-To deploy the game:
-1. Ensure all prerequisites are met and dependencies installed.
-2. Run the main application:
-   ```bash
-   $ python run.py
-   ```
-3. For production deployment, consider using platforms like Heroku or AWS by containerizing the application and using Docker (if applicable).
+1. **Prepare for deployment**: Ensure all dependencies are installed and the application runs locally.
+2. **Choose a hosting platform**: Options include Heroku, Vercel, or AWS.
+3. **Deploying on Heroku**:
+   - Install the Heroku CLI and log in:
+     ```bash
+     $ heroku login
+     ```
+   - Create a new Heroku application:
+     ```bash
+     $ heroku create multiplayer-tetris
+     ```
+   - Push code to Heroku:
+     ```bash
+     $ git push heroku master
+     ```
+   - Open the application in a browser:
+     ```bash
+     $ heroku open
+     ```
 
 ## Usage
-- Launch the game by running the main script:
-  ```bash
-  $ python run.py
-  ```
-- Player controls:
-  - Move left: Arrow Left
-  - Move right: Arrow Right
-  - Rotate: Arrow Up
-  - Drop: Arrow Down
+1. Open your web browser and navigate to the deployed application URL.
+2. Use the arrow keys to move and rotate Tetris pieces as a human player.
+3. Watch the AI opponent place its pieces automatically.
+4. Track your score in real-time on the scoreboard.
 
 ## Project Structure
-```
-tetris_duel/
-├── .gitignore               # Specify files and directories to ignore in version control
-├── README.md                # Project description and setup instructions
-├── assets/
-│   └── style.css            # Styles for the game interface
-├── config/
-│   └── config.py           # Configuration file for game settings
-├── src/
-│   ├── ai.py               # AI logic for automatic piece placement
-│   ├── game.py             # Game logic and mechanics implementation
-│   ├── main.py             # Main entry point for the Tetris Duel game
-│   ├── scoreboard.py        # Score tracking and display
-│   └── timer.py            # Manage game timer and special events
-└── tests/
-    ├── test_ai.py          # Unit tests for AI logic
-    ├── test_game.py        # Unit tests for game logic
-    ├── test_scoreboard.py   # Unit tests for scoreboard functionality
-    └── test_timer.py        # Unit tests for timer functionality
-```
+- **static/**: Contains all static assets including stylesheets and JavaScript files.
+  - `style.css`: Styles for the game layout.
+  - `script.js`: JavaScript for game logic and behavior.
+- **templates/**: Contains HTML files for rendering the game interface.
+  - `index.html`: Main HTML structure for the game.
 
 ## API Documentation
-N/A
+- **No external API endpoints are currently available for this game.**
 
 ## Troubleshooting
-- **Game does not start:** Ensure you have installed all dependencies and are using the correct Python version.
-- **Controls not responding:** Check if the window is active and that you are using the correct keys.
-- **Unexpected behavior from AI:** Review the AI logic in `ai.py` for any logical errors.
+- **Issue**: Game does not start.
+  - **Solution**: Check if all dependencies are installed correctly. Ensure the server is running.
+- **Issue**: The AI does not make moves.
+  - **Solution**: Inspect the AI logic in `script.js` to ensure it's correctly implemented.
 
 ## Development
-To set up a development environment:
-1. Follow the installation steps above.
-2. Use an IDE or text editor of your choice to modify the source code.
-3. Run tests to ensure functionality:
+1. **Setting up a development environment**:
+   - Follow the installation steps above.
+   - Use your preferred code editor (e.g., VSCode, PyCharm) for development.
+2. **Running the application**:
    ```bash
-   $ python -m unittest discover -s tests
+   (venv) $ flask run
    ```
+   Open your browser and navigate to `http://127.0.0.1:5000`.
+
+3. **Testing changes**:
+   - Make changes to `script.js` or `index.html` and refresh the browser to see updates.
+
+```

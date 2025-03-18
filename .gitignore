@@ -1,54 +1,35 @@
-# tetris_duel/.gitignore
+# .gitignore
 
-# Python cache files
-__pycache__/
-*.py[cod]
+# Node modules
+node_modules/
 
-# Distribution / packaging
-.Python
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+# Build output
+dist/
+build/
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
+# Logs
+logs/
 *.log
+npm-debug.log*
 
-# Pytest
-.cache
+# Environment variables
+.env
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# VS Code settings
+# IDE specific files
+.idea/
 .vscode/
 
-# PyCharm settings
-.idea/
+# OS generated files
+.DS_Store
+Thumbs.db
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
+# Temporary files
+*.tmp
+*.temp
+
+# Coverage directory used by tools like istanbul
+coverage/
 
 # Other files to ignore
-*.DS_Store
+*.bak
 *.swp
-*.swo
