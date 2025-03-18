@@ -11,12 +11,14 @@ try:
     from ai import AI
     from scoreboard import Scoreboard
     from timer import GameTimer
+    from performance import PerformanceManager
 except ImportError:
     # For running from project root
     from src.game import TetrisGame, PIECE_COLORS
     from src.ai import AI
     from src.scoreboard import Scoreboard
     from src.timer import GameTimer
+    from src.performance import PerformanceManager
 
 class TetrisDuel:
     def __init__(self, root: tk.Tk):
@@ -36,6 +38,10 @@ class TetrisDuel:
         self.timer = GameTimer()
         self.ai = AI(self.game)
         
+        # Performance optimization
+        self.performance = PerformanceManager(root)
+        self.performance.optimize_tkinter(self.canvas)
+        
         # Game speed control
         self.game_speed = 500  # milliseconds between updates
         self.original_speed = 500
@@ -45,9 +51,22 @@ class TetrisDuel:
         # AI thinking time
         self.ai_delay = 1500  # Ralentir l'IA à 1.5 secondes entre les mouvements
         
+        # Task IDs for cancellation during reset
+        self.ai_task_id = None
+        self.game_task_id = None
+        
         # Visual effects
         self.rainbow_mode = False
         self.rainbow_end_time = 0
+        
+        # Frame counting for smooth animation
+        self.last_update_time = time.time()
+        self.frame_count = 0
+        self.frame_rate = 0
+        
+        # Color cache to improve performance
+        self.color_cache = {}
+        self._precalculate_colors()
         
         # Keyboard bindings
         self.setup_keyboard_bindings()
@@ -56,6 +75,13 @@ class TetrisDuel:
         self.timer.start_timer()
         self.update_ai()
         self.update_game()
+    
+    def _precalculate_colors(self):
+        """Précalculer les couleurs pour éviter la conversion à chaque frame"""
+        self.color_cache = {}
+        for piece_type, rgb in PIECE_COLORS.items():
+            r, g, b = rgb
+            self.color_cache[piece_type] = f'#{r:02x}{g:02x}{b:02x}'
     
     def setup_keyboard_bindings(self):
         """Set up keyboard bindings for the game."""
@@ -71,18 +97,38 @@ class TetrisDuel:
     def reset_game(self):
         """Reset the game to initial state."""
         print("Resetting game...")
+        
+        # Annuler les mises à jour programmées
+        if hasattr(self, 'ai_task_id') and self.ai_task_id:
+            self.root.after_cancel(self.ai_task_id)
+        if hasattr(self, 'game_task_id') and self.game_task_id:
+            self.root.after_cancel(self.game_task_id)
+        
+        # Réinitialiser complètement le jeu et ses composants
+        self.game = TetrisGame()
         self.game.initialize_game()
+        
+        # Réinitialiser le score
         self.scoreboard.reset_scores()
+        
+        # Réinitialiser les variables de contrôle
         self.game_speed = self.original_speed
         self.gentle_pause_active = False
         self.rainbow_mode = False
         
-        # S'assurer que l'IA commence à jouer
-        self.update_ai()
-        
-        # Redémarrer le timer
+        # Réinitialiser le timer
         self.timer = GameTimer()
         self.timer.start_timer()
+        
+        # Redémarrer l'IA
+        self.ai = AI(self.game)
+        
+        # Redémarrer les tâches périodiques
+        self.update_ai()
+        self.update_game()
+        
+        # Mise à jour forcée de l'interface
+        self.redraw()
     
     def update_ai(self):
         """Have the AI make a move."""
@@ -112,7 +158,7 @@ class TetrisDuel:
                 self.game.hard_drop('ai')
         
         # Schedule next AI move with longer delay
-        self.root.after(self.ai_delay, self.update_ai)  # AI fait des mouvements chaque 1.5 secondes
+        self.ai_task_id = self.root.after(self.ai_delay, self.update_ai)
     
     def update_game(self):
         """Update the game state and redraw the canvas."""
@@ -139,12 +185,15 @@ class TetrisDuel:
         # Update scoreboard
         self.scoreboard.update_score(self.game.scores['human'], self.game.scores['ai'])
         
-        # Redraw the game
+        # Redraw the game with performance monitoring
+        self.performance.begin_frame()
         self.redraw()
+        self.performance.end_frame()
+        self.performance.limit_fps(60)  # Target 60 FPS for smoothness
         
         # Schedule next update if game is not over
         if not self.game.game_over:
-            self.root.after(self.game_speed, self.update_game)
+            self.game_task_id = self.root.after(self.game_speed, self.update_game)
         else:
             self.game_over_display()
     
@@ -160,8 +209,6 @@ class TetrisDuel:
         # Rainbow effect is handled by the timer class
         if self.timer.check_rainbow_event():
             self.activate_rainbow()
-        
-        # Funny piece is handled in the game class when spawning pieces
     
     def activate_gentle_pause(self):
         """Activate the gentle pause - slow down the game for 10 seconds."""
@@ -179,7 +226,19 @@ class TetrisDuel:
     
     def redraw(self):
         """Redraw the game grids and scores."""
+        # Measure performance
+        current_time = time.time()
+        elapsed = current_time - self.last_update_time
+        self.last_update_time = current_time
+        
+        self.frame_count += 1
+        if self.frame_count % 10 == 0 and elapsed > 0:  # Update FPS every 10 frames
+            self.frame_rate = 1.0 / elapsed
+        
+        # Clear canvas efficiently
         self.canvas.delete("all")
+        
+        # Draw game elements
         self.draw_grids()
         self.draw_next_pieces()
         self.draw_scores()
@@ -190,6 +249,10 @@ class TetrisDuel:
         
         if self.rainbow_mode:
             self.canvas.create_text(400, 580, text="RAINBOW MODE!", fill="magenta", font=("Arial", 16))
+        
+        # Force update for smoother animation
+        if not self.game.game_over:
+            self.canvas.update_idletasks()
     
     def draw_grids(self):
         """Draw the game grids for both players."""
@@ -216,33 +279,41 @@ class TetrisDuel:
         # Get the grid with the current piece
         grid = self.game.get_grid_with_current_piece(player)
         
-        # Draw each cell
+        # Draw background grid first (optimization)
         for row in range(self.game.grid_height):
             for col in range(self.game.grid_width):
                 x1 = grid_x + col * cell_width
                 y1 = grid_y + row * cell_height
                 x2 = x1 + cell_width
                 y2 = y1 + cell_height
-                
+                self.canvas.create_rectangle(x1, y1, x2, y2, fill='black', outline='#222222', width=0.5)
+        
+        # Then only draw occupied cells
+        for row in range(self.game.grid_height):
+            for col in range(self.game.grid_width):
                 cell_value = grid[row][col]
                 if cell_value:
+                    x1 = grid_x + col * cell_width
+                    y1 = grid_y + row * cell_height
+                    x2 = x1 + cell_width
+                    y2 = y1 + cell_height
+                    
                     # This is a piece cell, color it
                     if isinstance(cell_value, str):  # Regular piece
                         if self.rainbow_mode:
-                            # Rainbow mode - use random bright colors
-                            color = f'#{random.randint(128, 255):02x}{random.randint(128, 255):02x}{random.randint(128, 255):02x}'
+                            # Rainbow mode - use cached random colors for better performance
+                            color_key = f'rainbow_{row}_{col}_{self.frame_count % 20}'
+                            if color_key not in self.color_cache:
+                                self.color_cache[color_key] = f'#{random.randint(128, 255):02x}{random.randint(128, 255):02x}{random.randint(128, 255):02x}'
+                            color = self.color_cache[color_key]
                         else:
-                            # Normal mode - use the piece's color
-                            r, g, b = PIECE_COLORS.get(cell_value, (200, 200, 200))
-                            color = f'#{r:02x}{g:02x}{b:02x}'
+                            # Normal mode - use the cached piece color
+                            color = self.color_cache.get(cell_value, '#C8C8C8')
                     else:  # Special piece like a funny piece
                         color = '#FF00FF'  # Pink for special pieces
                     
                     # Fill the cell with the appropriate color
-                    self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline='black')
-                else:
-                    # Empty cell
-                    self.canvas.create_rectangle(x1, y1, x2, y2, fill='black', outline='#333333')
+                    self.canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline='black', width=0.5)
     
     def draw_next_pieces(self):
         """Draw the next piece preview for both players."""
