@@ -1,0 +1,8 @@
+# Tkinter is included with Python and not available on PyPI
+# Make sure your Python installation includes Tkinter
+
+# For testing
+pytest>=6.0.0
+
+# For performance improvements
+numpy>=1.19.0
