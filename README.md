@@ -42,14 +42,14 @@ To deploy the game:
 1. Ensure all prerequisites are met and dependencies installed.
 2. Run the main application:
    ```bash
-   $ python src/main.py
+   $ python run.py
    ```
 3. For production deployment, consider using platforms like Heroku or AWS by containerizing the application and using Docker (if applicable).
 
 ## Usage
 - Launch the game by running the main script:
   ```bash
-  $ python src/main.py
+  $ python run.py
   ```
 - Player controls:
   - Move left: Arrow Left
